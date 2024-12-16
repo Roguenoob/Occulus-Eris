@@ -8,4 +8,3 @@
 #define TGS_ERROR_LOG(message) log_world("TGS Error: [##message]")
 #define TGS_NOTIFY_ADMINS(event) message_admins(##event)
 #define TGS_CLIENT_COUNT GLOB.clients.len
-#define TGS_PROTECT_DATUM(Path) GENERAL_PROTECT_DATUM(##Path)
