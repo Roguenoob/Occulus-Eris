@@ -107,6 +107,8 @@
 
 	if(!(connection in list("seeker", "web")))					//Invalid connection type.
 		return null
+	
+	GLOB.clients += src
 
 	#if DM_VERSION >= 512
 	if(byond_version < config.minimum_byond_version || byond_build < config.minimum_byond_build)		//BYOND out of date.
@@ -197,6 +199,7 @@
 	//DISCONNECT//
 	//////////////
 /client/Del()
+	GLOB.clients -= src
 	if(holder)
 		holder.owner = null
 		admins -= src

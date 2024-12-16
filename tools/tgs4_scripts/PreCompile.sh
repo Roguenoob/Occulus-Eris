@@ -18,46 +18,50 @@ has_git="$(command -v git)"
 has_cargo="$(command -v ~/.cargo/bin/cargo)"
 has_sudo="$(command -v sudo)"
 has_grep="$(command -v grep)"
-has_youtubedl="$(command -v youtube-dl)"
+has_youtubedl="$(command -v yt-dlp)"
 has_pip3="$(command -v pip3)"
 set -e
 
 # install cargo if needed
 if ! [ -x "$has_cargo" ]; then
-	echo "Installing rust..."
-	curl https://sh.rustup.rs -sSf | sh -s -- -y
-	. ~/.profile
+        echo "Installing rust..."
+        apt-get update
+        apt-get install -y curl
+        curl https://sh.rustup.rs -sSf | sh -s -- -y
+        . ~/.profile
 fi
 
 # apt packages, libssl needed by rust-g but not included in TGS barebones install
 if ! ( [ -x "$has_git" ] && [ -x "$has_grep" ] && [ -f "/usr/lib/i386-linux-gnu/libssl.so" ] ); then
-	echo "Installing apt dependencies..."
-	if ! [ -x "$has_sudo" ]; then
-		dpkg --add-architecture i386
-		apt-get update
-		apt-get install -y git libssl-dev:i386
-		rm -rf /var/lib/apt/lists/*
-	else
-		sudo dpkg --add-architecture i386
-		sudo apt-get update
-		sudo apt-get install -y git libssl-dev:i386
-		sudo rm -rf /var/lib/apt/lists/*
-	fi
+        echo "Installing apt dependencies..."
+        if ! [ -x "$has_sudo" ]; then
+                dpkg --add-architecture i386
+                apt-get update
+                apt-get install -y git libssl-dev:i386
+                rm -rf /var/lib/apt/lists/*
+        else
+                sudo dpkg --add-architecture i386
+                sudo apt-get update
+                sudo apt-get install -y git libssl-dev:i386
+                sudo rm -rf /var/lib/apt/lists/*
+        fi
 fi
 dpkg --add-architecture i386
 apt-get update
-apt-get install -y lib32z1 pkg-config libssl-dev:i386 libssl-dev libssl1.1:i386
+apt-get install -y lib32z1-dev pkg-config libssl-dev:i386 libssl-dev
+# apt-get install -y libssl1.1:i386
+
 # update rust-g
 if [ ! -d "rust-g" ]; then
-	echo "Cloning rust-g..."
-	git clone https://github.com/tgstation/rust-g
-	cd rust-g
-	~/.cargo/bin/rustup target add i686-unknown-linux-gnu
+        echo "Cloning rust-g..."
+        git clone https://github.com/tgstation/rust-g
+        cd rust-g
+        ~/.cargo/bin/rustup target add i686-unknown-linux-gnu
 else
-	echo "Fetching rust-g..."
-	cd rust-g
-	git fetch
-	~/.cargo/bin/rustup target add i686-unknown-linux-gnu
+        echo "Fetching rust-g..."
+        cd rust-g
+        git fetch
+        ~/.cargo/bin/rustup target add i686-unknown-linux-gnu
 fi
 
 echo "Deploying rust-g..."
@@ -71,19 +75,19 @@ apt-get install -y cmake build-essential gcc-multilib g++-multilib cmake wget
 
 # update extools
 if [ ! -d "extools" ]; then
-	echo "Cloning extools..."
-	git clone https://github.com/MCHSL/extools
-	cd extools/byond-extools
+        echo "Cloning extools..."
+        git clone https://github.com/yogstation13/extools
+        cd extools/byond-extools
 else
-	echo "Fetching extools..."
-	cd extools/byond-extools
-	git fetch
+        echo "Fetching extools..."
+        cd extools/byond-extools
+        git fetch
 fi
 
 echo "Deploying extools..."
 git checkout "$EXTOOLS_VERSION"
 if [ -d "build" ]; then
-	rm -R build
+        rm -R build
 fi
 mkdir build
 cd build
@@ -92,23 +96,26 @@ make
 mv libbyond-extools.so "$1/libbyond-extools.so"
 cd ../../..
 
+
 # install or update youtube-dl when not present, or if it is present with pip3,
 # which we assume was used to install it
 if ! [ -x "$has_youtubedl" ]; then
-	echo "Installing youtube-dl with pip3..."
-	if ! [ -x "$has_sudo" ]; then
-		apt-get install -y python3 python3-pip
-	else
-		sudo apt-get install -y python3 python3-pip
-	fi
-	pip3 install youtube-dl
+        echo "Installing yt-dlp with pip3..."
+        if ! [ -x "$has_sudo" ]; then
+                apt-get install -y python3 python3-pip
+        else
+                sudo apt-get install -y python3 python3-pip
+        fi
+        pip3 install yt-dlp --break-system-packages
+        pip3 install requests --break-system-packages
 elif [ -x "$has_pip3" ]; then
-	echo "Ensuring youtube-dl is up-to-date with pip3..."
-	pip3 install youtube-dl -U
+        echo "Ensuring yt-dlp is up-to-date with pip3..."
+        pip3 install yt-dlp -U --break-system-packages
+        pip3 install requests -U --break-system-packages
 fi
 
 # compile tgui
-echo "Compiling tgui..."
-cd "$1"
-chmod +x tools/bootstrap/node  # Workaround for https://github.com/tgstation/tgstation-server/issues/1167
-env TG_BOOTSTRAP_CACHE="$original_dir" TG_BOOTSTRAP_NODE_LINUX=1 CBT_BUILD_MODE="TGS" tools/bootstrap/node tools/build/build.js
+# echo "Compiling tgui..."
+# cd "$1"
+# chmod +x tools/bootstrap/node  # Workaround for https://github.com/tgstation/tgstation-server/issues/1167
+# env TG_BOOTSTRAP_CACHE="$original_dir" TG_BOOTSTRAP_NODE_LINUX=1 CBT_BUILD_MODE="TGS" tools/bootstrap/node tools/build/build.js default
