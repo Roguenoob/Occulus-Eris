@@ -9,6 +9,7 @@
 
 */
 var/global/datum/global_init/init = new ()
+GLOBAL_VAR_INIT(tgs_initialized, FALSE)
 
 /*
 	Pre-map initialization stuff should go here.
@@ -94,6 +95,8 @@ var/game_id
 		// dumb and hardcoded but I don't care~
 		config.server_name += " #[(world.port % 1000) / 100]"
 
+	InitTgs()
+	
 	callHook("startup")
 	//Emergency Fix
 	load_mods()
@@ -148,6 +151,8 @@ var/world_topic_spam_protect_ip = "0.0.0.0"
 var/world_topic_spam_protect_time = world.timeofday
 
 /world/Topic(T, addr, master, key)
+	TGS_TOPIC	//redirect to server tools if necessary
+
 	var/list/topic_handlers = WorldTopicHandlers()
 
 	var/list/input = params2list(T)
@@ -199,6 +204,10 @@ var/world_topic_spam_protect_time = world.timeofday
 	else
 		to_chat(world, "<span class='boldannounce'>Rebooting world...</span>")
 		Master.Shutdown() //run SS shutdowns
+
+	log_world("TGS Reboot Started")
+	TgsReboot()
+	log_world("TGS Reboot Complete")
 
 	for(var/client/C in clients)
 		if(config.server)	//if you set a server location in config.txt, it sends you there instead of trying to reconnect to the same world address. -- NeoFite
@@ -411,3 +420,8 @@ proc/establish_db_connection()
 /world/Del()
 	disable_auxtools_debugger() //If we dont do this, we get phantom threads which can crash DD from memory access violations
 	..()
+
+
+/world/proc/InitTgs()
+	TgsNew(new /datum/tgs_event_handler/impl, TGS_SECURITY_TRUSTED)
+	GLOB.tgs_initialized = TRUE
