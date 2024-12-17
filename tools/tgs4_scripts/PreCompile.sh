@@ -71,7 +71,7 @@ mv target/i686-unknown-linux-gnu/release/librust_g.so "$1/librust_g.so"
 cd ..
 
 # get dependencies for extools
-apt-get install -y cmake build-essential gcc-multilib g++-multilib cmake wget
+apt-get install -y cmake build-essential gcc-multilib g++-multilib cmake wget libmariadb-dev:i386
 
 # update extools
 if [ ! -d "extools" ]; then
