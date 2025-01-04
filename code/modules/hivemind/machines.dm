@@ -526,7 +526,7 @@
 
 //MACHINE PREACHER
 //creepy radio talk, it's okay if they have no sense sometimes
-/obj/machinery/hivemind_machine/babbler
+//obj/machinery/hivemind_machine/babbler
 	name = "jammer"
 	desc = "A column-like structure with lights. You can see streams of energy moving inside."
 	max_health = 60
@@ -541,7 +541,7 @@
 	var/list/pattern = list("us", "you", "them", "mind", "hive", "machine", "help", "hell", "dead", "human", "machine")
 
 
-/obj/machinery/hivemind_machine/babbler/Process()
+//obj/machinery/hivemind_machine/babbler/Process()
 	if(!..())
 		return
 
@@ -550,7 +550,7 @@
 
 
 //this one is slow, careful with it
-/obj/machinery/hivemind_machine/babbler/use_ability()
+//obj/machinery/hivemind_machine/babbler/use_ability()
 	FLICK("[icon_state]-anim", src)
 	var/msg_cycles = rand(1, 2)
 	var/msg = ""
